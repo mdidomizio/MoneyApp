@@ -15,13 +15,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import com.example.moneyapp.data.remote.FrankfurterApi
 import com.example.moneyapp.data.remote.toDomain
+import com.example.moneyapp.domain.RatesRepository
 import com.example.moneyapp.ui.theme.MoneyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

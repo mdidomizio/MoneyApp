@@ -4,7 +4,14 @@ import com.example.moneyapp.domain.model.Currency
 import com.example.moneyapp.domain.model.ExchangeRate
 import com.example.moneyapp.domain.util.DataError
 import com.example.moneyapp.domain.util.Result
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ServerResponseException
+import io.ktor.serialization.ContentConvertException
+import io.ktor.utils.io.CancellationException
+import kotlinx.serialization.SerializationException
+import okio.IOException
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
 
 interface RatesRepository {
     suspend fun getCurrencies(): Result<List<Currency>, DataError>
