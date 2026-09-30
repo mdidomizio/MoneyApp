@@ -21,6 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -29,12 +32,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.moneyapp.domain.model.ExchangeRate
+import com.example.moneyapp.presentation.converter.components.CurrencyPickerSheet
+import com.example.moneyapp.presentation.converter.components.RateHistoryChart
 import com.example.moneyapp.presentation.util.formatted
 import com.example.moneyapp.presentation.util.toMessage
 import com.example.moneyapp.ui.theme.MoneyAppTheme
 import java.math.BigDecimal
 import java.time.LocalDate
 
+private enum class PickerTarget { FROM, TO }
 
 @Composable
 fun ConverterRoot(viewModel: ConverterViewModel = hiltViewModel()) {
@@ -47,6 +53,8 @@ fun ConverterScreen(
     state: ConverterUiState,
     onAction: (ConverterAction) -> Unit,
 ) {
+    var pickerTarget by remember { mutableStateOf<PickerTarget?>(null) }
+
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Currency converter") }) },
     ) { padding ->
@@ -76,7 +84,7 @@ fun ConverterScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 FilledTonalButton(
-                    onClick = { /* currency picker comes in 5b */ },
+                    onClick = { pickerTarget = PickerTarget.FROM },
                     modifier = Modifier.weight(1f),
                 ) { Text(state.from) }
 
@@ -85,7 +93,7 @@ fun ConverterScreen(
                 }
 
                 FilledTonalButton(
-                    onClick = { /* currency picker comes in 5b */ },
+                    onClick = {pickerTarget = PickerTarget.TO },
                     modifier = Modifier.weight(1f),
                 ) { Text(state.to) }
             }
@@ -112,6 +120,8 @@ fun ConverterScreen(
                 }
             }
 
+            RateHistoryChart(history = state.history)
+
             state.error?.let { error ->
                 Text(error.toMessage(), color = MaterialTheme.colorScheme.error)
                 TextButton(onClick = { onAction(ConverterAction.OnRetryClicked) }) {
@@ -119,6 +129,19 @@ fun ConverterScreen(
                 }
             }
         }
+    }
+    pickerTarget?.let { target ->
+        CurrencyPickerSheet(
+            currencies = state.currencies,
+            onSelect = { code ->
+                onAction(
+                    if (target == PickerTarget.FROM) ConverterAction.FromSelectedCode(code)
+                    else ConverterAction.ToSelectedCode(code)
+                )
+                pickerTarget = null
+            },
+            onDismiss = { pickerTarget = null }
+        )
     }
 }
 
