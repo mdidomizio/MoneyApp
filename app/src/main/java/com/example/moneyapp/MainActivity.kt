@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.moneyapp.data.remote.FrankfurterApi
 import com.example.moneyapp.data.remote.toDomain
 import com.example.moneyapp.domain.RatesRepository
+import com.example.moneyapp.presentation.converter.ConverterRoot
 import com.example.moneyapp.ui.theme.MoneyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -31,29 +32,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MoneyAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                ConverterRoot()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MoneyAppTheme {
-        Greeting("Android")
     }
 }

@@ -32,7 +32,7 @@ class ConverterViewModelTest {
         val repository = FakeRatesRepository()
         val viewModel = ConverterViewModel(repository)
 
-        viewModel.onAction(ConverterAction.OnSwaClicked)
+        viewModel.onAction(ConverterAction.OnSwapClicked)
 
         assertEquals(
             "USD" to "EUR",

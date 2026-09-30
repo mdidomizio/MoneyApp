@@ -1,6 +1,5 @@
 package com.example.moneyapp.presentation.converter
 
-import android.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moneyapp.domain.RatesRepository
@@ -132,7 +131,7 @@ class ConverterViewModel @Inject constructor(
                 loadPair()
             }
 
-            ConverterAction.OnSwaClicked -> swap()
+            ConverterAction.OnSwapClicked -> swap()
 
             is ConverterAction.ToSelectedCode -> {
                 if (action.code == uiState.value.from) swap()

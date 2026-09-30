@@ -13,7 +13,7 @@ sealed interface ConverterAction {
         val code: String
     ) : ConverterAction
 
-    data object OnSwaClicked : ConverterAction
+    data object OnSwapClicked : ConverterAction
 
     data object OnRetryClicked : ConverterAction
 }
