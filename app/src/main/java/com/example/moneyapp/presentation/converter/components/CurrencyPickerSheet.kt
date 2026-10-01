@@ -18,7 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.moneyapp.R
 import com.example.moneyapp.domain.model.Currency
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +42,9 @@ fun CurrencyPickerSheet(
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
-            label = { Text("Search by code or name") },
+            label = { Text(
+                text = stringResource(id = R.string.currency_picker_sheet_text_field)
+            ) },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -49,7 +53,7 @@ fun CurrencyPickerSheet(
 
         if (currencies.isEmpty()) {
             Text(
-                text = "Currencies couldn't be loaded. Close this and tap \"Try again\".",
+                text = stringResource(R.string.currency_picker_sheet_empty_text_field),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(16.dp),
             )

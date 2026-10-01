@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -25,7 +26,12 @@ object NetworkModule {
             json(Json { ignoreUnknownKeys = true })
         }
         install(HttpTimeout) {
-            requestTimeoutMillis = 15_000
+            requestTimeoutMillis = 20_000
+            socketTimeoutMillis = 15_000
+        }
+        install(HttpRequestRetry) {
+            retryOnExceptionOrServerErrors(maxRetries = 2)
+            exponentialDelay()
         }
         defaultRequest {
             url("https://api.frankfurter.dev/v2/")

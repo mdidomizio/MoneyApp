@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MoneyApp</string>
+    <!-- ConverterScreen -->
+    <string name="converter_screen_title">Währungsrechner</string>
+    <string name="converter_amount_label">Betrag in %1$s</string>
+    <string name="converter_screen_card_text">Mittlerer Marktkurs für %1$s. Die Kurse werden einmal pro Werktag aktualisiert.</string>
+    <string name="converter_screen_text_button">Erneut versuchen</string>
+
+    <!-- RateHistoryChart -->
+    <string name="rate_history_chart_coverage">Letzte 30 Tage</string>
+    <string name="rate_history_chart_low">Tiefstwert %1$s</string>
+    <string name="rate_history_chart_high">Höchstwert %1$s</string>
+
+    <!-- CurrencyPickerSheet -->
+    <string name="currency_picker_sheet_text_field">Nach Code oder Name suchen</string>
+    <string name="currency_picker_sheet_empty_text_field">Währungen konnten nicht geladen werden. Schließe dies und tippe auf „Erneut versuchen“.</string>
+
+    <!-- error message -->
+    <string name="error_no_internet">Keine Verbindung. Überprüfe deine Internetverbindung und versuche es erneut.</string>
+    <string name="error_timeout">Der Kursdienst benötigt zu lange für eine Antwort. Versuche es gleich noch einmal.</string>
+    <string name="error_not_found">Für dieses Währungspaar ist kein Kurs verfügbar. Versuche eine andere Währung.</string>
+    <string name="error_invalid_request">Dieses Währungspaar wird nicht unterstützt. Versuche eine andere Währung.</string>
+    <string name="error_server">Der Kursdienst antwortet nicht. Versuche es gleich noch einmal.</string>
+    <string name="error_serialization">Die Kursdaten konnten nicht gelesen werden.</string>
+    <string name="error_unknown">Etwas ist schiefgelaufen. Versuche es erneut.</string>
+
+</resources>

@@ -1,3 +1,28 @@
 <resources>
-    <string name="app_name">MoneyApp</string>
+    <string name="app_name" translatable="false">MoneyApp</string>
+
+    <!-- ConverterScreen -->
+    <string name="converter_screen_title">Currency converter</string>
+    <string name="converter_amount_label">Amount in %1$s</string>
+    <string name="converter_screen_card_text">Mid-market rate for %1$s. Rates update once per business day.</string>
+    <string name="converter_screen_text_button">Try again</string>
+
+    <!-- RateHistoryChart -->
+    <string name="rate_history_chart_coverage">Last 30 days</string>
+    <string name="rate_history_chart_low">Low %1$s</string>
+    <string name="rate_history_chart_high">High %1$s</string>
+
+    <!-- CurrencyPickerSheet -->
+    <string name="currency_picker_sheet_text_field">Search by code or name</string>
+    <string name="currency_picker_sheet_empty_text_field">Currencies couldn\'t be loaded. Close this and tap Try again.</string>
+
+    <!-- error message -->
+    <string name="error_no_internet">No connection. Check your internet and try again.</string>
+    <string name="error_timeout">The rates service is taking too long to respond. Try again in a moment.</string>
+    <string name="error_not_found">No rate available for this currency pair. Try another currency.</string>
+    <string name="error_invalid_request">This currency pair isn\'t supported. Try another currency.</string>
+    <string name="error_server">The rates service isn\'t responding. Try again in a moment.</string>
+    <string name="error_serialization">The app couldn\'t read the rate data.</string>
+    <string name="error_unknown">Something went wrong. Try again.</string>
+
 </resources>

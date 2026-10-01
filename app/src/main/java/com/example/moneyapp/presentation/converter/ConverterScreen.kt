@@ -26,19 +26,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.moneyapp.R
 import com.example.moneyapp.domain.model.ExchangeRate
 import com.example.moneyapp.presentation.converter.components.CurrencyPickerSheet
 import com.example.moneyapp.presentation.converter.components.RateHistoryChart
 import com.example.moneyapp.presentation.util.formatted
-import com.example.moneyapp.presentation.util.toMessage
+import com.example.moneyapp.presentation.util.formattedRate
+import com.example.moneyapp.presentation.util.toMessageRes
 import com.example.moneyapp.ui.theme.MoneyAppTheme
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
 
 private enum class PickerTarget { FROM, TO }
 
@@ -47,6 +54,7 @@ fun ConverterRoot(viewModel: ConverterViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     ConverterScreen(state = state, onAction = viewModel::onAction)
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConverterScreen(
@@ -54,9 +62,17 @@ fun ConverterScreen(
     onAction: (ConverterAction) -> Unit,
 ) {
     var pickerTarget by remember { mutableStateOf<PickerTarget?>(null) }
-
+    val locale = LocalConfiguration.current.locales[0]
     Scaffold(
-        topBar = { CenterAlignedTopAppBar(title = { Text("Currency converter") }) },
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.converter_screen_title)
+                    )
+                }
+            )
+        },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -73,7 +89,11 @@ fun ConverterScreen(
             OutlinedTextField(
                 value = state.amountInput,
                 onValueChange = { onAction(ConverterAction.OnAmountChanged(it)) },
-                label = { Text("Amount in ${state.from}") },
+                label = {
+                    Text(
+                        text = stringResource(R.string.converter_amount_label, state.from)
+                    )
+                },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
@@ -93,26 +113,38 @@ fun ConverterScreen(
                 }
 
                 FilledTonalButton(
-                    onClick = {pickerTarget = PickerTarget.TO },
+                    onClick = { pickerTarget = PickerTarget.TO },
                     modifier = Modifier.weight(1f),
                 ) { Text(state.to) }
             }
 
+
+
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = state.converted?.formatted() ?: "–",
+                        text = state.converted?.formatted(locale) ?: "–",
                         style = MaterialTheme.typography.displaySmall,
                     )
+
                     state.rate
                         ?.takeIf { it.base == state.from && it.quote == state.to }
                         ?.let { rate ->
                             Text(
-                                text = "1 ${rate.base} = ${rate.rate.stripTrailingZeros().toPlainString()} ${rate.quote}",
+                                text = "1 ${rate.base} = ${
+                                    rate.rate.formattedRate(locale)
+                                } ${rate.quote}",
                                 style = MaterialTheme.typography.bodyLarge,
                             )
                             Text(
-                                text = "Mid-market rate for ${rate.date}. Rates update once per business day.",
+                                text = stringResource(
+                                    R.string.converter_screen_card_text,
+                                    rate.date
+                                        .format(
+                                            DateTimeFormatter
+                                                .ofLocalizedDate(FormatStyle.MEDIUM)
+                                        )
+                                ),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -123,9 +155,20 @@ fun ConverterScreen(
             RateHistoryChart(history = state.history)
 
             state.error?.let { error ->
-                Text(error.toMessage(), color = MaterialTheme.colorScheme.error)
-                TextButton(onClick = { onAction(ConverterAction.OnRetryClicked) }) {
-                    Text("Try again")
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        stringResource(error.toMessageRes()),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    TextButton(onClick = { onAction(ConverterAction.OnRetryClicked) }) {
+                        Text(
+                            text = stringResource(R.string.converter_screen_text_button)
+                        )
+                    }
                 }
             }
         }

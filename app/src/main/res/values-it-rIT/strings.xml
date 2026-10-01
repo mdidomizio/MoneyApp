@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MoneyApp</string>
+
+    <!-- ConverterScreen -->
+    <string name="converter_screen_title">Convertitore di valuta</string>
+    <string name="converter_amount_label">Importo in %1$s</string>
+    <string name="converter_screen_card_text">Tasso di cambio medio di mercato per %1$s. I tassi vengono aggiornati una volta al giorno lavorativo.</string>
+    <string name="converter_screen_text_button">Riprova</string>
+
+    <!-- RateHistoryChart -->
+    <string name="rate_history_chart_coverage">Ultimi 30 giorni</string>
+    <string name="rate_history_chart_low">Minimo %1$s</string>
+    <string name="rate_history_chart_high">Massimo %1$s</string>
+
+    <!-- CurrencyPickerSheet -->
+    <string name="currency_picker_sheet_text_field">Cerca per codice o nome</string>
+    <string name="currency_picker_sheet_empty_text_field">Non è stato possibile caricare le valute. Chiudi questa schermata e tocca "Riprova".</string>
+
+    <!-- error message -->
+    <string name="error_no_internet">Nessuna connessione. Controlla la connessione Internet e riprova.</string>
+    <string name="error_timeout">Il servizio dei tassi sta impiegando troppo tempo per rispondere. Riprova piu tardi.</string>
+    <string name="error_not_found">Non è disponibile alcun tasso per questa coppia di valute. Prova un\'altra valuta.</string>
+    <string name="error_invalid_request">Questa coppia di valute non è supportata. Prova un\'altra valuta.</string>
+    <string name="error_server">Il servizio dei tassi non risponde. Riprova tra poco.</string>
+    <string name="error_serialization">Non è stato possibile leggere i dati dei tassi.</string>
+    <string name="error_unknown">Si è verificato un errore. Riprova.</string>
+
+</resources>

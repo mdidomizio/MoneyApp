@@ -1,5 +1,6 @@
 package com.example.moneyapp.data
 
+import android.util.Log
 import com.example.moneyapp.data.remote.FrankfurterApi
 import com.example.moneyapp.data.remote.toDomain
 import com.example.moneyapp.domain.RatesRepository
@@ -8,11 +9,13 @@ import com.example.moneyapp.domain.model.ExchangeRate
 import com.example.moneyapp.domain.util.DataError
 import com.example.moneyapp.domain.util.Result
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.serialization.ContentConvertException
 import io.ktor.utils.io.CancellationException
 import kotlinx.serialization.SerializationException
 import okio.IOException
+import java.net.SocketTimeoutException
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import javax.inject.Inject
@@ -58,7 +61,11 @@ class RateRepositoryImpl @Inject constructor(
             )
         } catch (e: ServerResponseException) {
             Result.Error(DataError.SERVER)
-        } catch (e: IOException){
+        } catch (e: SocketTimeoutException) {  //java.net
+            Result.Error(DataError.TIMEOUT)
+        }  catch (e: HttpRequestTimeoutException) { //io.ktorclient.plugins
+            Result.Error(DataError.SERVER)
+        }  catch (e: IOException){
             Result.Error(DataError.NO_INTERNET)
         } catch (e: SerializationException) {
             Result.Error(DataError.SERIALIZATION)

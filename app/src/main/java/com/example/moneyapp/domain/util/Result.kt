@@ -11,5 +11,6 @@ enum class DataError {
     INVALID_REQUEST,
     SERVER,
     SERIALIZATION,
+    TIMEOUT,
     UNKNOWN
 }
