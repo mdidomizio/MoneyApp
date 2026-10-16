@@ -3,8 +3,8 @@ package com.example.moneyapp.presentation.converter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moneyapp.domain.RatesRepository
-import com.example.moneyapp.domain.util.DataError
 import com.example.moneyapp.domain.util.Result
+import com.example.moneyapp.presentation.converter.RateUiState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -36,11 +36,7 @@ class ConverterViewModel @Inject constructor(
 
         pairJob = viewModelScope.launch {
             _uiState.update {
-                it.copy(
-                    isLoading = true,
-                    error = null,
-                    history = emptyList()
-                )
+                it.copy(rateState = Loading)
             }
 
             val rate = async { repository.getLatestRate(from, to) }
@@ -55,15 +51,17 @@ class ConverterViewModel @Inject constructor(
             val rateResult = rate.await()
             val historyResult = history.await()
 
-            _uiState.update { current ->
-                current.copy(
-                    isLoading = false,
-                    rate = (rateResult as? Result.Success)?.data ?: current.rate,
-                    history = (historyResult as? Result.Success)?.data.orEmpty(),
-                    error = (rateResult as? Result.Error)?.error
-                        ?: (historyResult as? Result.Error)?.error
+            val newRateState = when (rateResult) {
+                is Result.Success -> Success(
+                    rate = rateResult.data,
+                    history = (historyResult as? Result.Success)?.data.orEmpty()
                 )
 
+                is Result.Error -> Error(rateResult.error)
+            }
+
+            _uiState.update {
+                it.copy( rateState = newRateState)
             }
         }
     }
@@ -79,13 +77,7 @@ class ConverterViewModel @Inject constructor(
                     }
                 }
 
-                is Result.Error<*> -> {
-                    _uiState.update {
-                        it.copy(
-                            error = result.error as DataError?
-                        )
-                    }
-                }
+                is Result.Error -> Unit
             }
         }
     }
@@ -107,7 +99,7 @@ class ConverterViewModel @Inject constructor(
         val sanitized = input.filter {
             it.isDigit() || it == '.' || it ==','
         }
-        if (sanitized.count{ it == '.' || it == '.'} > 1) return
+        if (sanitized.count{ it == '.' || it == ','} > 1) return
         _uiState.update {
             it.copy(
                 amountInput = sanitized

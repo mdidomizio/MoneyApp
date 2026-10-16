@@ -26,8 +26,8 @@ object NetworkModule {
             json(Json { ignoreUnknownKeys = true })
         }
         install(HttpTimeout) {
-            requestTimeoutMillis = 20_000
-            socketTimeoutMillis = 15_000
+            requestTimeoutMillis = 40_000
+            socketTimeoutMillis = 30_000
         }
         install(HttpRequestRetry) {
             retryOnExceptionOrServerErrors(maxRetries = 2)

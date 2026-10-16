@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -36,16 +35,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.moneyapp.R
 import com.example.moneyapp.domain.model.ExchangeRate
 import com.example.moneyapp.presentation.converter.components.CurrencyPickerSheet
-import com.example.moneyapp.presentation.converter.components.RateHistoryChart
+import com.example.moneyapp.presentation.converter.components.ErrorComponent
+import com.example.moneyapp.presentation.converter.components.SuccessComponent
 import com.example.moneyapp.presentation.util.formatted
-import com.example.moneyapp.presentation.util.formattedRate
 import com.example.moneyapp.presentation.util.toMessageRes
 import com.example.moneyapp.ui.theme.MoneyAppTheme
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.util.Locale
 
 private enum class PickerTarget { FROM, TO }
 
@@ -80,19 +76,13 @@ fun ConverterScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            if (state.isLoading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-            }
-
             OutlinedTextField(
                 value = state.amountInput,
                 onValueChange = { onAction(ConverterAction.OnAmountChanged(it)) },
                 label = {
-                    Text(
-                        text = stringResource(R.string.converter_amount_label, state.from)
-                    )
+                    Text(stringResource(R.string.converter_amount_label, state.from))
                 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -120,59 +110,37 @@ fun ConverterScreen(
 
 
 
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = state.converted?.formatted(locale) ?: "–",
-                        style = MaterialTheme.typography.displaySmall,
-                    )
-
-                    state.rate
-                        ?.takeIf { it.base == state.from && it.quote == state.to }
-                        ?.let { rate ->
-                            Text(
-                                text = "1 ${rate.base} = ${
-                                    rate.rate.formattedRate(locale)
-                                } ${rate.quote}",
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                            Text(
-                                text = stringResource(
-                                    R.string.converter_screen_card_text,
-                                    rate.date
-                                        .format(
-                                            DateTimeFormatter
-                                                .ofLocalizedDate(FormatStyle.MEDIUM)
-                                        )
-                                ),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
+            when (val rateState = state.rateState) {
+                RateUiState.Loading -> {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
-            }
 
-            RateHistoryChart(history = state.history)
-
-            state.error?.let { error ->
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(
-                        stringResource(error.toMessageRes()),
-                        color = MaterialTheme.colorScheme.error
+                is RateUiState.Error -> {
+                    ErrorComponent(
+                        onAction = { onAction(ConverterAction.OnRetryClicked) },
+                        errorMessage = stringResource(rateState.errorMessage.toMessageRes()),
+                        modifier = Modifier
                     )
-                    TextButton(onClick = { onAction(ConverterAction.OnRetryClicked) }) {
-                        Text(
-                            text = stringResource(R.string.converter_screen_text_button)
-                        )
-                    }
+                }
+
+                is RateUiState.Success -> {
+                    SuccessComponent(
+                        modifier = Modifier,
+                        from = state.from,
+                        to = state.to,
+                        convertedAmount = state.converted?.formatted(locale) ?: "–",
+                        rateState = rateState,
+                        locale = locale,
+                    )
                 }
             }
         }
-    }
+
+
+
+
+
+        }
     pickerTarget?.let { target ->
         CurrencyPickerSheet(
             currencies = state.currencies,
@@ -195,7 +163,16 @@ private fun ConverterScreenPreview() {
         ConverterScreen(
             state = ConverterUiState(
                 amountInput = "100",
-                rate = ExchangeRate("EUR", "USD", BigDecimal("1.1568"), LocalDate.of(2026, 9, 29)),
+                rateState = RateUiState.Success(
+                    rate = ExchangeRate(
+                        "EUR",
+                        "USD",
+                        BigDecimal("1.1568"),
+                        LocalDate
+                            .of(2026, 9, 29)
+                    ),
+                    history = emptyList(),
+                    )
             ),
             onAction = {},
         )
