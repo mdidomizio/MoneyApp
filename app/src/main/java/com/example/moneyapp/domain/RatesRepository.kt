@@ -2,6 +2,7 @@ package com.example.moneyapp.domain
 
 import com.example.moneyapp.domain.model.Currency
 import com.example.moneyapp.domain.model.ExchangeRate
+import com.example.moneyapp.domain.model.LatestRate
 import com.example.moneyapp.domain.util.DataError
 import com.example.moneyapp.domain.util.Result
 import java.time.LocalDate
@@ -11,7 +12,7 @@ interface RatesRepository {
     suspend fun getLatestRate(
         base: String,
         quote: String
-    ): Result<ExchangeRate, DataError>
+    ): Result<LatestRate, DataError>
 
     suspend fun getRateHistory(
         base: String,

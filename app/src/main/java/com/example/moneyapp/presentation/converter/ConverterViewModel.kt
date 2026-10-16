@@ -53,7 +53,7 @@ class ConverterViewModel @Inject constructor(
 
             val newRateState = when (rateResult) {
                 is Result.Success -> Success(
-                    rate = rateResult.data,
+                    rate = rateResult.data.rate,
                     history = (historyResult as? Result.Success)?.data.orEmpty()
                 )
 
