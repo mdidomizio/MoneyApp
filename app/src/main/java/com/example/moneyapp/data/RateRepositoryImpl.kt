@@ -1,5 +1,6 @@
 package com.example.moneyapp.data
 
+import com.example.moneyapp.data.local.CurrencyDao
 import com.example.moneyapp.data.local.RateDao
 import com.example.moneyapp.data.local.toDomain
 import com.example.moneyapp.data.local.toEntity
@@ -29,14 +30,35 @@ import javax.inject.Inject
 class RateRepositoryImpl @Inject constructor(
     private val api: FrankfurterApi,
     private val rateDao: RateDao,
+    private val currencyDao: CurrencyDao,
     private val clock: Clock
 ) : RatesRepository {
-    override suspend fun getCurrencies(): Result<List<Currency>, DataError> =
-        safeCall {
+    override suspend fun getCurrencies(): Result<List<Currency>, DataError> {
+        val remote = safeCall {
             api.getCurrencies()
                 .map { it.toDomain() }
                 .sortedBy { it.code }
         }
+
+        return when (remote) {
+            is Result.Success -> {
+                currencyDao.replaceAll(
+                    remote.data.map { it.toEntity() }
+                )
+                remote
+            }
+
+            is Result.Error -> {
+                val cached =
+                    if (remote.error in FALLBACK_ERRORS) currencyDao.getAll()
+                    else emptyList()
+
+                if (cached.isNotEmpty()) Result.Success(cached.map { it.toDomain() })
+                else remote
+            }
+        }
+    }
+
 
     override suspend fun getLatestRate(
         base: String,
@@ -49,17 +71,19 @@ class RateRepositoryImpl @Inject constructor(
                 rateDao.upsert(remote.data.toEntity(fetchedAt = clock.instant()))
                 Result.Success(LatestRate(remote.data, RateSource.Network))
             }
+
             is Result.Error -> {
                 val cached =
                     if (remote.error in FALLBACK_ERRORS) rateDao.get(base, quote)
-                else null
+                    else null
 
                 if (cached != null) {
                     Result.Success(
                         LatestRate(
                             rate = cached.toDomain(),
                             source = RateSource.Cache(
-                                savedAt = Instant.ofEpochMilli(cached.fetchedAt
+                                savedAt = Instant.ofEpochMilli(
+                                    cached.fetchedAt
                                 )
                             ),
                         )
@@ -87,8 +111,8 @@ class RateRepositoryImpl @Inject constructor(
     ): Result<T, DataError> =
         try {
             Result.Success(block())
-        } catch (e: CancellationException){
-            throw  e
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: ClientRequestException) {
             Result.Error(
                 if (e.response.status.value == 404) DataError.NOT_FOUND else DataError.INVALID_REQUEST
@@ -97,9 +121,9 @@ class RateRepositoryImpl @Inject constructor(
             Result.Error(DataError.SERVER)
         } catch (e: SocketTimeoutException) {  //java.net
             Result.Error(DataError.TIMEOUT)
-        }  catch (e: HttpRequestTimeoutException) { //io.ktorclient.plugins
+        } catch (e: HttpRequestTimeoutException) { //io.ktorclient.plugins
             Result.Error(DataError.SERVER)
-        }  catch (e: IOException){
+        } catch (e: IOException) {
             Result.Error(DataError.NO_INTERNET)
         } catch (e: SerializationException) {
             Result.Error(DataError.SERIALIZATION)
@@ -111,7 +135,7 @@ class RateRepositoryImpl @Inject constructor(
             Result.Error(DataError.UNKNOWN)
         }
 
-   private companion object{
+    private companion object {
         val FALLBACK_ERRORS =
             setOf(
                 DataError.NO_INTERNET,

@@ -1,11 +1,13 @@
 package com.example.moneyapp.data.local
 
+import com.example.moneyapp.domain.model.Currency
 import com.example.moneyapp.domain.model.ExchangeRate
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 
-fun ExchangeRate.toEntity(fetchedAt: Instant) = CachedRateEntity(
+fun ExchangeRate.toEntity(fetchedAt: Instant) =
+    CachedRateEntity(
     base = base,
     quote = quote,
     rate = rate.toPlainString(),
@@ -13,9 +15,24 @@ fun ExchangeRate.toEntity(fetchedAt: Instant) = CachedRateEntity(
     fetchedAt = fetchedAt.toEpochMilli(),
 )
 
-fun CachedRateEntity.toDomain() = ExchangeRate(
+fun CachedRateEntity.toDomain() =
+    ExchangeRate(
     base = base,
     quote = quote,
     rate = BigDecimal(rate),
     date = LocalDate.parse(date)
 )
+
+fun Currency.toEntity() =
+    CachedCurrencyEntity(
+        code = code,
+        name = name,
+        symbol = symbol
+    )
+
+fun CachedCurrencyEntity.toDomain() =
+    Currency(
+        code = code,
+        name = name,
+        symbol = symbol
+    )

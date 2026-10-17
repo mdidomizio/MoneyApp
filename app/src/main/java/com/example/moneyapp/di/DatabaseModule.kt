@@ -2,6 +2,7 @@ package com.example.moneyapp.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.moneyapp.data.local.CurrencyDao
 import com.example.moneyapp.data.local.MoneyDataBase
 import com.example.moneyapp.data.local.RateDao
 import dagger.Module
@@ -19,10 +20,22 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): MoneyDataBase =
-        Room.databaseBuilder(context, MoneyDataBase::class.java, "money.db").build()
+        Room
+            .databaseBuilder(
+                context,
+                MoneyDataBase::class.java,
+                "money.db"
+            )
+            .fallbackToDestructiveMigration(dropAllTables = true)
+            .build()
 
     @Provides
-    fun provideRateDao(dataBase: MoneyDataBase): RateDao = dataBase.rateDao()
+    fun provideRateDao(dataBase: MoneyDataBase): RateDao =
+        dataBase.rateDao()
+
+    @Provides
+    fun provideCurrencyDao(dataBase: MoneyDataBase): CurrencyDao =
+        dataBase.currencyDao()
 
     @Provides
     @Singleton
