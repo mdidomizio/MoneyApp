@@ -40,4 +40,7 @@ class FakeRatesRepository : RatesRepository {
         quote: String,
         from: LocalDate,
     ): Result<List<ExchangeRate>, DataError> = Result.Success(emptyList())
+
+    override suspend fun syncRates(): Result<Unit, DataError> = Result.Success(Unit)
+
 }

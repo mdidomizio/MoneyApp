@@ -74,23 +74,31 @@ class RateRepositoryImpl @Inject constructor(
 
             is Result.Error -> {
                 val cached =
-                    if (remote.error in FALLBACK_ERRORS) rateDao.get(base, quote)
+                    if (remote.error in FALLBACK_ERRORS) cachedRate(base, quote)
                     else null
 
-                if (cached != null) {
-                    Result.Success(
-                        LatestRate(
-                            rate = cached.toDomain(),
-                            source = RateSource.Cache(
-                                savedAt = Instant.ofEpochMilli(
-                                    cached.fetchedAt
-                                )
-                            ),
-                        )
-                    )
-                } else remote
+                if (cached != null) Result.Success(cached) else remote
             }
         }
+    }
+
+    private suspend fun cachedRate(base: String, quote: String): LatestRate? {
+        rateDao.get(base, quote)?.let { direct ->
+            return LatestRate(
+                rate = direct.toDomain(),
+                source = RateSource.Cache(
+                    savedAt = Instant.ofEpochMilli(direct.fetchedAt)
+                )
+            )
+        }
+        val pivotToBase = if (base == PIVOT) null else rateDao.get(PIVOT, base)
+        val pivotToQuote = if (quote == PIVOT) null else rateDao.get(PIVOT, quote)
+        return deriveCrossRate(
+            base = base,
+            quote = quote,
+            pivotToBase = pivotToBase,
+            pivotToQuote = pivotToQuote
+        )
     }
 
 
@@ -104,6 +112,15 @@ class RateRepositoryImpl @Inject constructor(
                 .filter { it.quote == quote }
                 .map { it.toDomain() }
                 .sortedBy { it.date }
+        }
+
+    override suspend fun syncRates(): Result<Unit, DataError> =
+        safeCall {
+            val now = clock.instant()
+            val rates = api.getLatestRates(PIVOT)
+                .filter { it.quote != PIVOT } //drop EUR->EUR row
+                .map { it.toDomain().toEntity(fetchedAt = now) }
+            rateDao.upsertAll(rates)
         }
 
     private suspend fun <T> safeCall(

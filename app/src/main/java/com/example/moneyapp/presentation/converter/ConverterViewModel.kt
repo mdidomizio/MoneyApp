@@ -2,6 +2,7 @@ package com.example.moneyapp.presentation.converter
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.moneyapp.domain.ConnectivityObserver
 import com.example.moneyapp.domain.RatesRepository
 import com.example.moneyapp.domain.util.Result
 import com.example.moneyapp.presentation.converter.RateUiState.*
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConverterViewModel @Inject constructor(
-    private val repository: RatesRepository
+    private val repository: RatesRepository,
+    private val connectivityObserver: ConnectivityObserver
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ConverterUiState())
     val uiState = _uiState.asStateFlow()
@@ -27,6 +29,24 @@ class ConverterViewModel @Inject constructor(
     init {
         loadCurrencies()
         loadPair()
+        syncRates()
+        observeConnectivity()
+    }
+
+    private fun observeConnectivity() {
+        viewModelScope.launch {
+            var wasOnLine: Boolean? = null
+            connectivityObserver.isOnLine.collect { isOnLine ->
+                if (isOnLine && wasOnLine == false) refreshAfterReconnect()
+                wasOnLine = isOnLine
+            }
+        }
+    }
+
+    private fun refreshAfterReconnect() {
+        syncRates()
+        if (uiState.value.currencies.isEmpty()) loadCurrencies()
+        if (uiState.value.rateState is RateUiState.Error) loadPair()
     }
 
     private fun loadPair() {
@@ -79,6 +99,12 @@ class ConverterViewModel @Inject constructor(
 
                 is Result.Error -> Unit
             }
+        }
+    }
+
+    private fun syncRates() {
+        viewModelScope.launch {
+            repository.syncRates()
         }
     }
 

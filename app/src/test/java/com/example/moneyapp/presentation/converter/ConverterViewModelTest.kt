@@ -2,6 +2,7 @@ package com.example.moneyapp.presentation.converter
 
 import com.example.moneyapp.MainDispatcherRule
 import com.example.moneyapp.domain.model.Money
+import com.example.moneyapp.fake.FakeConnectivityObserver
 import com.example.moneyapp.fake.FakeRatesRepository
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -15,7 +16,7 @@ class ConverterViewModelTest {
 
     @Test
     fun `converts the entered amount with the loaded rate`() {
-        val viewModel = ConverterViewModel(FakeRatesRepository())
+        val viewModel = ConverterViewModel(  FakeRatesRepository(), FakeConnectivityObserver())
         viewModel.onAction(ConverterAction.OnAmountChanged("100"))
 
         val converted = viewModel.uiState.value.converted?.rounded()
@@ -30,7 +31,8 @@ class ConverterViewModelTest {
     @Test
     fun `swap requests the reversed pair`() {
         val repository = FakeRatesRepository()
-        val viewModel = ConverterViewModel(repository)
+        val connectivityObserver = FakeConnectivityObserver()
+        val viewModel = ConverterViewModel(repository, connectivityObserver)
 
         viewModel.onAction(ConverterAction.OnSwapClicked)
 

@@ -30,4 +30,7 @@ class FrankfurterApi @Inject constructor(
             parameter("quotes", quote)
             parameter("from", from.toString())
         }.body()
+
+    suspend fun getLatestRates(base: String): List<RateDto> =
+        client.get("rates") { parameter("base", base) }. body()
 }

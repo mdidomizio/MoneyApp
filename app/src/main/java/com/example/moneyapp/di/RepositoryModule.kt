@@ -1,6 +1,8 @@
 package com.example.moneyapp.di
 
+import com.example.moneyapp.data.AndroidConnectivityObserver
 import com.example.moneyapp.data.RateRepositoryImpl
+import com.example.moneyapp.domain.ConnectivityObserver
 import com.example.moneyapp.domain.RatesRepository
 import dagger.Binds
 import dagger.Module
@@ -17,4 +19,10 @@ abstract class RepositoryModule {
     abstract fun bindRateRepository(
         impl: RateRepositoryImpl
     ): RatesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindConnectivityObserver(
+        impl: AndroidConnectivityObserver
+    ): ConnectivityObserver
 }

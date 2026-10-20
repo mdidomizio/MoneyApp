@@ -19,4 +19,6 @@ interface RatesRepository {
         quote: String,
         from: LocalDate
     ): Result<List<ExchangeRate>, DataError>
+
+    suspend fun syncRates(): Result<Unit, DataError>
 }
