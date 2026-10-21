@@ -93,12 +93,14 @@ class RateRepositoryImpl @Inject constructor(
         }
         val pivotToBase = if (base == PIVOT) null else rateDao.get(PIVOT, base)
         val pivotToQuote = if (quote == PIVOT) null else rateDao.get(PIVOT, quote)
-        return deriveCrossRate(
+
+        val derive = deriveCrossRate(
             base = base,
             quote = quote,
             pivotToBase = pivotToBase,
             pivotToQuote = pivotToQuote
         )
+        return derive
     }
 
 
