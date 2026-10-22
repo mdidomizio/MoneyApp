@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moneyapp.domain.ConnectivityObserver
 import com.example.moneyapp.domain.RatesRepository
+import com.example.moneyapp.domain.model.RateSource
 import com.example.moneyapp.domain.util.Result
 import com.example.moneyapp.presentation.converter.RateUiState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,7 +47,14 @@ class ConverterViewModel @Inject constructor(
     private fun refreshAfterReconnect() {
         syncRates()
         if (uiState.value.currencies.isEmpty()) loadCurrencies()
-        if (uiState.value.rateState is RateUiState.Error) loadPair()
+        val rateState = uiState.value.rateState
+        if (rateState is Error
+            || (rateState is Success
+                    && rateState.savedAt != null)
+            ) {
+            loadPair()
+        }
+
     }
 
     private fun loadPair() {
@@ -74,7 +82,8 @@ class ConverterViewModel @Inject constructor(
             val newRateState = when (rateResult) {
                 is Result.Success -> Success(
                     rate = rateResult.data.rate,
-                    history = (historyResult as? Result.Success)?.data.orEmpty()
+                    history = (historyResult as? Result.Success)?.data.orEmpty(),
+                    savedAt = (rateResult.data.source as? RateSource.Cache)?.savedAt,
                 )
 
                 is Result.Error -> Error(rateResult.error)

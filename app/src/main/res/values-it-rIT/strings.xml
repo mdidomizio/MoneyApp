@@ -26,4 +26,6 @@
     <string name="error_serialization">Non è stato possibile leggere i dati dei tassi.</string>
     <string name="error_unknown">Si è verificato un errore. Riprova.</string>
 
+    <string name="saved_rate_notice">Impossibile ottenere un tasso aggiornato. Viene mostrato un tasso salvato il %1$s.</string>
+
 </resources>

@@ -25,4 +25,6 @@
     <string name="error_serialization">The app couldn\'t read the rate data.</string>
     <string name="error_unknown">Something went wrong. Try again.</string>
 
+    <string name="saved_rate_notice">Couldn\'t get a fresh rate. Showing a rate saved on %1$s.</string>
+
 </resources>

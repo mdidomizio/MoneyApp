@@ -25,4 +25,5 @@
     <string name="error_serialization">Die Kursdaten konnten nicht gelesen werden.</string>
     <string name="error_unknown">Etwas ist schiefgelaufen. Versuche es erneut.</string>
 
+    <string name="saved_rate_notice">Aktueller Kurs nicht abrufbar. Angezeigt wird ein gespeicherter Kurs (Stand: %1$s).</string>
 </resources>

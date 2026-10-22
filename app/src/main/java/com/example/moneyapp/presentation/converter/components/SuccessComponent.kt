@@ -31,6 +31,13 @@ fun SuccessComponent(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        rateState.savedAt?.let { savedAt ->
+            SavedRateBanner(
+                savedAt = savedAt,
+                locale = locale
+            )
+        }
+
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(

@@ -5,6 +5,7 @@ import com.example.moneyapp.domain.model.ExchangeRate
 import com.example.moneyapp.domain.model.Money
 import com.example.moneyapp.domain.util.DataError
 import java.math.BigDecimal
+import java.time.Instant
 
 sealed interface RateUiState {
     data object Loading : RateUiState
@@ -14,7 +15,8 @@ sealed interface RateUiState {
 
     data class Success(
         val rate: ExchangeRate,
-        val history: List<ExchangeRate>
+        val history: List<ExchangeRate>,
+        val savedAt: Instant? = null
     ) : RateUiState
 }
 
